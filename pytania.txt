@@ -1,0 +1,1 @@
+1. Post.js. Nie wyświetla liczby likes (likesCount)
