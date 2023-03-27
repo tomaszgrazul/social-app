@@ -36,3 +36,23 @@
 .post .likes {
     text-align: right;
 }
+
+.deleteConfirmation {
+    position: fixed;
+    background-color: white;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: 1px solid black;
+}
+
+.deleteConfirmation .no {
+    background-color: red;
+}
+
+.deleteConfirmation .yes {
+    background-color: green;
+}
+
+
+

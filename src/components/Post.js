@@ -1,10 +1,41 @@
 import './Post.css'
 
 import { useState } from "react";
+import axios from 'axios';
 
 const Post = (props) => {
 
     const [likesCount, setLikesCount] = useState(props.post.likes.lenght);
+
+    const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+
+    const [doesUserLiked, setDoesUserLiked] = useState(props.post.likes.filter(like => like.username === props.user?.username).length !==0);
+
+    const deletePost = (id) => {
+        axios
+        .post("https://akademia108.pl/api/social-app/post/delete", {
+            post_id: id
+        })
+        .then((res) => {
+            console.log(res.data);
+            props.setPosts(posts =>{
+                return posts.filter(post => post.id !== res.data.post_id);
+            });
+        })
+        .catch((error) => {
+            console.error(error);
+        });
+    };
+
+    const likePost = (id, isLiked) => {
+        axios
+        .post("https://akademia108.pl/api/social-app/post/" + (isLiked ? 'dislike' : 'like'), {
+        })
+        .then(() => {
+            setLikesCount(likesCount + (isLiked ? -1 : 1));
+            setDoesUserLiked(!isLiked);
+        })
+    }
 
     return (
         <div className="post">
@@ -24,9 +55,29 @@ const Post = (props) => {
                     {props.post.content}
                 </div>
                 <div className="likes">
-                    <h2>Liczba likes: {likesCount}</h2>
+                    {props.user?.username === props.post.user.username && <button className='btn' onClick={() => setDeleteModalVisible(true)}>Delete</button>}
+                    {/* usuwanie postów 4.30 */}
+
+                    {props.user && (
+                    <button 
+                        className="btn" 
+                        onClick={() => likePost(props.post.id, doesUserLiked)}
+                    >
+                        {doesUserLiked ? 'Dislike' : 'Like'}
+                    </button>
+                    )}
+
+                    <h4>likes: {likesCount}</h4>
                 </div>
             </div>
+
+            {deleteModalVisible && (
+                <div className="deleteConfirmation">
+                    <h3>Are you sure you want to delete this post?</h3>
+                    <button className='btn yes' onClick={() => deletePost(props.post.id)}>Yes</button>
+                    <button className='btn no' onClick={() => setDeleteModalVisible(false)}>No</button>
+                </div>
+            )}
         </div>
     );
 }
