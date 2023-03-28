@@ -1,2 +1,2 @@
-﻿1. Post.js. Nie wyświetla liczby likes (likesCount)
+﻿1. FollowRecomendations.js. Nie działa pobieranie danych z setRecommendations.
 2. Textarea. AddPost.js. Inaczej sie zachowuje. Style plus rozciaganie.
