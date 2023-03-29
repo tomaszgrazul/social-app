@@ -162,7 +162,7 @@ const SignUp = (props) => {
         axios
         .post("https://akademia108.pl/api/social-app/user/signup", {
         username: formData.username,
-        email: formData.password,
+        email: formData.email,
         password: formData.password
         })
         .then((res) => {
