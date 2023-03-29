@@ -1,5 +1,6 @@
+import axios from "axios";
 import { useState } from "react";
-import { Navigate } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 
 import './SignUp.css'
 
@@ -19,6 +20,9 @@ const SignUp = (props) => {
         confirmPassword: ''
     });
 
+    const [signUpMessage, setSignUpMessage] = useState('');
+    const [signUpDone, setSignUpDone] = useState(false);
+
     const validate = () => {
         let validationErrors = {
             username: false,
@@ -33,7 +37,7 @@ const SignUp = (props) => {
             setErrors(prevErrors =>{
                 return {
                     ...prevErrors, 
-                    username: 'Username should have at least 4'
+                    username: 'Username should have at least 4 characters'
                 };
                 // rejestracja użytkownika 16.05
             });
@@ -56,12 +60,12 @@ const SignUp = (props) => {
         }   
           // Email
 
-        if ( !/^[A-Z0-9._%+-] + @[A-Z0-9.-] + \.[A-Z]{2,}$/i.test(formData.email.trim())) {
+        if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(formData.email.trim())) {
             validationErrors.email = true;
             setErrors(prevErrors =>{
                 return {
                     ...prevErrors, 
-                    email: "Thera is no valid email"
+                    email: "There is no valid email"
                 };
             });
         } else {
@@ -73,7 +77,62 @@ const SignUp = (props) => {
                 };
             });
         }
-         // 27.20
+         // Password
+
+        if (formData.password.trim().length < 6) {
+            validationErrors.password = true;
+            setErrors(prevErrors =>{
+                return {
+                    ...prevErrors, 
+                    password: 'Password should have at least 6 characters'
+                };
+            });
+        } else if (!/^[^\s]*$/.test(formData.password.trim())) {
+                    validationErrors.password = true;
+                    setErrors(prevErrors =>{
+                    return {
+                        ...prevErrors, 
+                        password: "Password shouldn'n have empty characters"
+                    };
+                });  
+        } else 
+                if(!/[!@#$%^&*()_+\-=[\]{};':",.<>/?]+/.test(formData.password.trim())) {
+                validationErrors.password = true;
+                setErrors(prevErrors =>{
+                return {
+                    ...prevErrors, 
+                    password: "Password must contain one of charts: ! # @ $ %"
+                }; 
+            });
+        } else {
+                validationErrors.password = false;
+                setErrors(prevErrors =>{
+                return {
+                    ...prevErrors, 
+                    password: ""
+                };
+            }); 
+        }
+
+        // Confirm password
+        if (formData.password.trim() !== formData.confirmPassword.trim()) {
+                validationErrors.confirmPassword = true;
+                setErrors(prevErrors =>{
+                return {
+                    ...prevErrors, 
+                    confirmPassword: "Password should be the same"
+                };
+            });
+        } else {
+            validationErrors.password = false;
+                setErrors(prevErrors =>{
+                return {
+                    ...prevErrors, 
+                    confirmPassword: ""
+                };
+            });
+        }
+
         return (
                 !validationErrors.username && 
                 !validationErrors.email && 
@@ -100,23 +159,56 @@ const SignUp = (props) => {
              return;
         }
     
-        console.log('wysyłam');
+        axios
+        .post("https://akademia108.pl/api/social-app/user/signup", {
+        username: formData.username,
+        email: formData.password,
+        password: formData.password
+        })
+        .then((res) => {
+            console.log(res.data);
+            let resData = res.data;
+            if (resData.signedup) {
+                setSignUpMessage("Account created")
+                setSignUpDone(true)
+            } else {
+                if (resData.message.username) {
+                    setSignUpMessage(resData.message.username[0])
+                } else if (resData.message.email) {
+                    setSignUpMessage(resData.message.email[0])
+                }
+            }
+         })
+        .catch((error) => {
+            console.error(error);
+        });
     };
 
     return (
             <div className="signUp">
                 {props.user && <Navigate to="/" />}
                 <form onSubmit={handleSubmit} >  
+
+                    {signUpMessage && <h2>{signUpMessage}</h2> }
+
                     <input type="text" name="username" placeholder="User name"  onChange={handleInputChange}/>
                     {errors.username && <p>{errors.username}</p>}
 
-                    <input type="email" name="username" placeholder="Email" onChange={handleInputChange} />
+                    <input type="email" name="email" placeholder="Email" onChange={handleInputChange} />
                     {errors.email && <p>{errors.email}</p>}
 
-                    <input type="password" name="username" placeholder="Password" onChange={handleInputChange} />
+                    <input type="password" name="password" placeholder="Password" onChange={handleInputChange} />
+                    {errors.password && <p>{errors.password}</p>}
 
                     <input type="password" name="confirmPassword" placeholder="Confirm password" onChange={handleInputChange} />
-                    <button className="btn" >Sign Up</button>
+                    {errors.confirmPassword && <p>{errors.confirmPassword}</p>}
+
+                    <button className="btn" disabled={signUpDone}>Sign Up</button>
+
+                    {signUpDone && <div className="btn">
+
+                        <Link to='/login'>Go to login</Link>
+                    </div>}
                 </form>
             </div>
             )

@@ -1,3 +1,4 @@
 ﻿1. FollowRecomendations.js. Nie działa pobieranie danych z setRecommendations.
 2. Textarea. AddPost.js. Inaczej sie zachowuje. Style plus rozciaganie.
 3. Jak jednym kliknięciem przejść do innego elementu? np. tak jak na rejestracja użytkowników 3.15
+4. Przy tworzeniu konta dostaję błąd email
